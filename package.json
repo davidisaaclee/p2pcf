@@ -11,7 +11,8 @@
     "build": "esbuild src/p2pcf.js --define:global=window --format=esm --bundle --outfile=dist/p2pcf.js",
     "build:min": "esbuild src/p2pcf.js --minify --define:global=window --bundle --outfile=dist/p2pcf.min.js",
     "test": "echo \"No tests.\"",
-    "start:worker": "wrangler dev"
+    "start:worker": "wrangler dev",
+    "format": "prettier-standard \"src/**.js\" && prettier --write \"src/**/*.d.ts\""
   },
   "dependencies": {
     "array-buffer-to-hex": "^1.0.0",
