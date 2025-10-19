@@ -104,10 +104,12 @@ const removeInPlace = (a, condition) => {
 }
 
 const ua = window.navigator.userAgent
-const iOS = !!ua.match(/iPad/i) || !!ua.match(/iPhone/i)
-const webkit = !!ua.match(/WebKit/i)
-const iOSSafari = !!(iOS && webkit && !ua.match(/CriOS/i))
-const isFirefox = !!(navigator?.userAgent.toLowerCase().indexOf('firefox') > -1)
+const iOS = ua && (!!ua.match(/iPad/i) || !!ua.match(/iPhone/i))
+const webkit = ua && !!ua.match(/WebKit/i)
+const iOSSafari = ua && !!(iOS && webkit && !ua.match(/CriOS/i))
+const isFirefox = !!(
+  navigator?.userAgent?.toLowerCase().indexOf('firefox') > -1
+)
 
 const hexToBase64 = hex => arrayBufferToBase64(hexToBytes(hex))
 const base64ToHex = b64 => arrayBufferToHex(base64ToArrayBuffer(b64))
