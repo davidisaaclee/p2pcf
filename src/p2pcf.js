@@ -273,7 +273,7 @@ export default class P2PCF extends EventEmitter {
     this.idlePollingAfterMs = options.idlePollingAfterMs || Infinity
     this.idlePollingRateMs = options.idlePollingRateMs || Infinity
 
-    this.wrtc = getBrowserRTC()
+    this.wrtc = options.wrtc || getBrowserRTC()
     this.dtlsCert = null
     this.udpEnabled = null
     this.isSymmetric = null
