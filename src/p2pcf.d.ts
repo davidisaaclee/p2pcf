@@ -5,6 +5,7 @@
  */
 
 import { EventEmitter } from "events";
+import Peer from "tiny-simple-peer";
 
 /**
  * Interface for storing and retrieving the context ID
@@ -111,6 +112,11 @@ export interface P2PCFOptions {
    * Options to pass to RTCPeerConnection constructor (optional)
    */
   rtcPeerConnectionOptions?: RTCConfiguration;
+
+  /**
+   * Function to customize simple-peer constructor options (optional)
+   */
+  customizeSimplePeerOptions?: (options: Parameters<Peer>) => Parameters<Peer>;
 
   /**
    * Proprietary constraints to pass to RTCPeerConnection constructor (optional)

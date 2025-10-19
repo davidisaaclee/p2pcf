@@ -248,6 +248,8 @@ export default class P2PCF extends EventEmitter {
     this.packageReceivedFromPeers = new Set()
     this.startedAtTimestamp = null
     this.peerOptions = options.rtcPeerConnectionOptions || {}
+    this.customizeSimplePeerOptions =
+      options.customizeSimplePeerOptions || (x => x)
     this.peerProprietaryConstraints =
       options.rtcPeerConnectionProprietaryConstraints || {}
     this.peerSdpTransform = options.sdpTransform || (sdp => sdp)
@@ -580,27 +582,29 @@ export default class P2PCF extends EventEmitter {
           remoteCandidates
         ] = remotePackage
 
-        const peer = new Peer({
-          config: peerOptions,
-          initiator: false,
-          iceCompleteTimeout: Infinity,
-          proprietaryConstraints: this.peerProprietaryConstraints,
-          sdpTransform: sdp => {
-            const lines = []
+        const peer = new Peer(
+          this.customizeSimplePeerOptions({
+            config: peerOptions,
+            initiator: false,
+            iceCompleteTimeout: Infinity,
+            proprietaryConstraints: this.peerProprietaryConstraints,
+            sdpTransform: sdp => {
+              const lines = []
 
-            for (const l of sdp.split('\r\n')) {
-              if (l.startsWith('a=ice-ufrag')) {
-                lines.push(`a=ice-ufrag:${localIceUFrag}`)
-              } else if (l.startsWith('a=ice-pwd')) {
-                lines.push(`a=ice-pwd:${localIcePwd}`)
-              } else {
-                lines.push(l)
+              for (const l of sdp.split('\r\n')) {
+                if (l.startsWith('a=ice-ufrag')) {
+                  lines.push(`a=ice-ufrag:${localIceUFrag}`)
+                } else if (l.startsWith('a=ice-pwd')) {
+                  lines.push(`a=ice-pwd:${localIcePwd}`)
+                } else {
+                  lines.push(l)
+                }
               }
-            }
 
-            return this.peerSdpTransform(lines.join('\r\n'))
-          }
-        })
+              return this.peerSdpTransform(lines.join('\r\n'))
+            }
+          })
+        )
 
         peer.id = remoteSessionId
         peer.client_id = remoteClientId
@@ -690,14 +694,16 @@ export default class P2PCF extends EventEmitter {
 
           const remoteUfrag = randomstring(12)
           const remotePwd = randomstring(32)
-          const peer = new Peer({
-            config: peerOptions,
-            proprietaryConstraints: this
-              .rtcPeerConnectionProprietaryConstraints,
-            iceCompleteTimeout: Infinity,
-            initiator: true,
-            sdpTransform: this.peerSdpTransform
-          })
+          const peer = new Peer(
+            this.customizeSimplePeerOptions({
+              config: peerOptions,
+              proprietaryConstraints: this
+                .rtcPeerConnectionProprietaryConstraints,
+              iceCompleteTimeout: Infinity,
+              initiator: true,
+              sdpTransform: this.peerSdpTransform
+            })
+          )
 
           peer.id = remoteSessionId
           peer.client_id = remoteClientId
