@@ -90,7 +90,8 @@ const arrToText = textDecoder.decode.bind(textDecoder)
 const textToArr = textEncoder.encode.bind(textEncoder)
 
 const removeInPlace = (a, condition) => {
-  let i = 0; let j = 0
+  let i = 0
+  let j = 0
 
   while (i < a.length) {
     const val = a[i]
@@ -219,8 +220,9 @@ export default class P2PCF extends EventEmitter {
     this.packageReceivedFromPeers = new Set()
     this.startedAtTimestamp = null
     this.peerOptions = options.rtcPeerConnectionOptions || {}
-    this.peerProprietaryConstraints = options.rtcPeerConnectionProprietaryConstraints || {}
-    this.peerSdpTransform = options.sdpTransform || ((sdp) => sdp)
+    this.peerProprietaryConstraints =
+      options.rtcPeerConnectionProprietaryConstraints || {}
+    this.peerSdpTransform = options.sdpTransform || (sdp => sdp)
 
     this.workerUrl = options.workerUrl || 'https://p2pcf.minddrop.workers.dev'
 
@@ -667,7 +669,8 @@ export default class P2PCF extends EventEmitter {
           const remotePwd = randomstring(32)
           const peer = new Peer({
             config: peerOptions,
-            proprietaryConstraints: this.rtcPeerConnectionProprietaryConstraints,
+            proprietaryConstraints: this
+              .rtcPeerConnectionProprietaryConstraints,
             iceCompleteTimeout: Infinity,
             initiator: true,
             sdpTransform: this.peerSdpTransform
@@ -860,8 +863,12 @@ export default class P2PCF extends EventEmitter {
         newUdpEnabled !== this.udpEnabled ||
         newIsSymmetric !== this.isSymmetric ||
         newDtlsFingerprint !== this.dtlsFingerprint ||
-        !![...newReflexiveIps].find(ip => ![...this.reflexiveIps].find(ip2 => ip === ip2)) ||
-        !![...reflexiveIps].find(ip => ![...newReflexiveIps].find(ip2 => ip === ip2))
+        !![...newReflexiveIps].find(
+          ip => ![...this.reflexiveIps].find(ip2 => ip === ip2)
+        ) ||
+        !![...reflexiveIps].find(
+          ip => ![...newReflexiveIps].find(ip2 => ip === ip2)
+        )
       ) {
         // Network changed, force pushing new data
         this.dataTimestamp = null
@@ -920,7 +927,10 @@ export default class P2PCF extends EventEmitter {
       if (msg.buffer.byteLength === msg.length) {
         dataArrBuffer = msg.buffer
       } else {
-        dataArrBuffer = msg.buffer.slice(msg.byteOffset, msg.byteOffset + msg.byteLength)
+        dataArrBuffer = msg.buffer.slice(
+          msg.byteOffset,
+          msg.byteOffset + msg.byteLength
+        )
       }
     } else {
       throw new Error('Unsupported send data type', msg)
@@ -1209,12 +1219,9 @@ export default class P2PCF extends EventEmitter {
 
     // Once ICE completes, perform subsequent signalling via the datachannel
     peer.on('signal', signalData => {
-      const payloadBytes = textToArr(
-        JSON.stringify(signalData)
-      )
+      const payloadBytes = textToArr(JSON.stringify(signalData))
 
-      let len =
-        payloadBytes.byteLength + SIGNAL_MESSAGE_HEADER_WORDS.length * 2
+      let len = payloadBytes.byteLength + SIGNAL_MESSAGE_HEADER_WORDS.length * 2
 
       if (len % 2 !== 0) {
         len++
