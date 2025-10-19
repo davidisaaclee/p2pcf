@@ -193,6 +193,32 @@ const parseCandidate = line => {
   return candidate
 }
 
+class HistoryStateContextIDStore {
+  /** @returns boolean */
+  hasStoredContextId () {
+    return !!window.history.state?._p2pcfContextId
+  }
+
+  /** @returns string | null */
+  getContextId () {
+    return window.history.state?._p2pcfContextId || null
+  }
+
+  /**
+   * @arg contextId string
+   * @returns void
+   */
+  setContextId (contextId) {
+    window.history.replaceState(
+      {
+        ...window.history.state,
+        _p2pcfContextId: contextId
+      },
+      window.location.href
+    )
+  }
+}
+
 export default class P2PCF extends EventEmitter {
   constructor (clientId = '', roomId = '', options = {}) {
     super()
@@ -264,17 +290,12 @@ export default class P2PCF extends EventEmitter {
     this.startIdlePollingAt = now + this.idlePollingAfterMs
 
     // ContextID is maintained across page refreshes
-    if (!window.history.state?._p2pcfContextId) {
-      window.history.replaceState(
-        {
-          ...window.history.state,
-          _p2pcfContextId: randomstring(20)
-        },
-        window.location.href
-      )
+    const contextIdStore =
+      options.contextIdStore || new HistoryStateContextIDStore()
+    if (!contextIdStore.hasStoredContextId()) {
+      contextIdStore.setContextId(randomstring(20))
     }
-
-    this.contextId = window.history.state._p2pcfContextId
+    this.contextId = contextIdStore.getContextId()
   }
 
   async _init () {
